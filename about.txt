@@ -1,0 +1,401 @@
+Docker:
+-------
+    -> Docker was first released in march 2013, it is developed by Solomon Hykes. 
+    -> Open Source Centralized platform design to create deploy and run the application
+    -> in docker always use Host operating system itSelf it's don't have any operating system.
+    -> in docker container if we want to install ubuntu then it will first copy the image on docker
+        engin/ docker daemon and after that very small required part it will run on container.
+    -> docker written in "go" language.
+    -> docker is a tool which provides O.S level Virtualization, also know as Containerization 
+    -> before docker many people face problem that application perfectly running on developer machine but not working 
+        on qa / production environment
+    
+    Advantage: 
+    -----------
+        ->  no pre allocation of RAM.
+        -> CI(continuous integration) Efficiency.  you can build a image of docker and use the same image on
+            every step on deployment process.
+        -> less cost
+        -> light weight
+        -> can run on  physical H/W and virtualization, on cloud 
+        -> you use re-use the image 
+        -> it will take very less time to create container 
+    
+    Disadvantage :
+    --------------
+        -> docker not recommend that for rich GUI application.
+        -> difficult to manage large no user
+        -> docker does not provide cross-platform compatibility
+        ->  docker it suitiable when the development env and testing env are exactly same and if developed using 
+            centO.Os and qa having ubuntu then images won't work.
+
+    We have 3 ways to create a Docker Images:
+    -------------------------------------------
+        1. take pull from docker hub so in this case docker engin create a image and keep itself for future use.
+        2. from running container we can create an image
+        3.  from docker file, first we build the docker file and after that we can easily create a docker image.
+
+    Basic command for docker:
+    -------------------------
+        -> to see all the images which are present on your local system
+            command: 
+                    docker image
+
+        -> find out image in docker hub 
+            command: 
+                docker search "package name/ image name"
+        
+        -> download image from the docker hub to local machine
+            command: 
+                    docker pull "image name"
+
+        -> to give name of container:
+        ------------------------------
+                -> command: 
+                        docker run -it --name sagar "image name/ package name/example: ubuntu" /bin/bash
+
+                        here: -i stand for interactive mode and t = terminal
+
+        -> to check service start / stop
+        -----------------------------------
+                -> command: service docker status 
+        
+        -> to start the container:
+        ------------------------
+            -> command: docker start "container name"
+
+        -> to stop the container: 
+        --------------------------  
+            -> command: docker stop "container name"
+        
+        -> to delete the Container:
+        -----------------------------
+            -> command: docker rm "container name" 
+
+
+        -> to go inside the container 
+        -----------------------------
+            command: docker attach "container name"
+        
+        -> to see all container
+        ------------------------
+            -> docker ps -a 
+        
+        -> to see only running container 
+        -----------------------------------
+            -> command: docker -ps
+
+            here: ps stand for process state.
+
+    Method 2: -> How to create an image from my Own Container:
+    -------------------------------------------------
+        ->login into aws account and start your ec2 instance access from putty 
+        -> Now you want to create container from Our Own image
+        ->  therefore create a container first 
+            ----------------------------------- 
+            Step 1: Command: docker run -it --name "container name" ubuntu /bin/bash
+            Step 2: Cd /tmp
+            Step 3: touch file1
+            Step 4: now if you want to see the difference between the base image and the changes container
+                    command: docker diff container-name
+
+                    O/p:-
+                        C  = change 
+                        A = Append or Addition
+                        D = Deletion\
+
+                        c /root
+                        a /root/.bash-history
+                        c /tmp
+                        A /tmp/file1
+            Step 5: now create image from this container
+                command: docker commit "container name" "Name of Image"
+
+            Docker Container from the image:
+            ----------------------------------
+                command: docker run -it  --name "container-name" "Name of Newly Created Image" /bin/bash
+            
+            Note: to check please login into container and check file1 into tmp directory
+    
+    Method 3: -> Create Image from Docker Files:
+    --------------------------------------------
+        -> docker file basically a text file it contains some set of instruction 
+        -> automation of docker image creation 
+        -> Note ***** name must be same as "Docker" of the file ******"
+        -> all component must be in upper case while Docker file creations.
+        Docker Component:
+        ------------------
+            -> FORM       = for base image, this command must be on top of the Dockerfile
+            -> RUN        = to execute commands it will create a layer in image
+            -> MAINTAINER = Author/ Owner / Description
+            -> COPY       = Copy files from local server not from the internet,
+            -> ADD        = Similar to copy but it provides the facility to download files from internet and also it can extract the ZIP files automatically.
+            -> EXPOSE     = to expose port number such as 80,8080 etc.
+            -> WORKDIR    = to set the working directory after container creation it will auto navigate to given path.
+            -> CMD        = execute command but during container creation
+            -> ENTRYPOINT = similar to CMD but it having high priority over CMD so it means it will run first/before CMD.
+            -> ENV        = environment variable
+
+        Steps to create Dockerfile:
+        --------------------------
+            1. Create a file of name "Dockerfile"
+            2. add instruction in Dockerfile
+            3. Build Dockerfile to create image
+            4. create container from the image
+
+            Example 1:
+            ----------
+                => create file 
+                    Command: vi Dockerfile
+                => add instruction 
+                    FROM ubuntu
+                    RUN echo "hello world" > /tmp/newfile
+                    press esc + :wq to save and exit 
+                
+                => create image from this Dockerfile
+                    command: docker build -t myimage .
+                    Note: 1.-t denote the tag
+                          2. "." is very important in the above command it represent the current directory
+
+                => now create container from the newly created image
+                    command: docker run -it --name my-container myimage /bin/bash
+
+                => now in you Dockerfile you have create one file called newfile so you can check in this container.
+
+
+Docker Network :
+-----------------
+
+    Osi Model:
+    ----------
+
+        Application layer        | 
+        --------------------     | 
+        Presentation Layer       |
+        --------------------     |  Gateway 
+        Session                  |
+        --------------------     |
+        Transport                |
+        --------------------
+        Network                  | Route/ layer-3 switch -> ip address
+        --------------------
+        Data link                | Bridge / Switch -> MAC addess
+        --------------------
+        Physical                 | Hub / Repeater
+        ---------------------
+
+    first we need to know all the network devices :
+    -----------------------------------------------
+        1.Hub:
+        ------
+            1. hub work on physical layer.
+            2. layer-1 device 
+            3. electric signal or bits
+            4. half duplex
+            5. cannot store MAC address
+            6. Always Broadcast
+            7. Single Collision Domain
+            8. LAN Device 
+            9. logically it is work on bas topology 
+            10. Hub is consider as two type:
+            -------------------------------
+                -> Active Hub 
+                ---------------
+                    -> it is used to amplify the signal 
+                    -> it need electricity 
+                    -> work similar like repeater
+
+                -> Passive Hub:
+                ---------------
+                    -> it send as it is signal. not going to amplify 
+                    -> no need to electricity
+            
+        2. Repeater :
+        -------------
+            -> it regenerate signal or amplify  for long travel
+
+        3. Bridges:
+        ------------
+            -> it work on data link layer
+            -> bride is having bridge table so it keep the node in it.
+            -> with the help on node bridge decide wether forwards traffic or reject traffic 
+            -> it use MAC address.
+            -> how it work: at the initial time bridge is also broadcast message at the all nodes and once it will create entrees in the bridge table after that it will
+                only send message to a particular side on the bridge.
+
+            -> it is Layer-2 device
+            -> used to connect 2 different network segment 
+            -> filter data traffic 
+            -> bridge reduce the amount of traffic on a LAN by dividing it.
+            -> it has 2 Collision domain.
+
+        4. Switch:
+        -----------
+            -> it is also work on data link layer 
+            -> it is also called layer-2 device
+            -> also called multiport Bridge
+            -> it has it's own table called Content Accessible memory (CAM table)
+            ->  port no  | MAC Address 
+                1        |    
+                2        |
+                3        |
+                4        |
+                5        |
+                6        |
+                7        |
+                8        |
+
+            -> Full duplex
+            -> first time broad cast but after that unicast
+            -> 8/6/24/48 Ports
+            -> slow
+
+            -> type of Switch:
+            -------------------
+                1. store & forward Switch (store full data so more reliable and secure but slow)
+                2. Cut through Switch  (didn't store and check so fast but not reliable)
+                3. Fragment Free Switch  (check only 48 bit header )
+                4. Adaptive Switch (it change dynamically it's behavior)
+
+        5. Router:
+        -----------
+            -> layer 3 device 
+            -> WAN Device 
+            -> Connect 2 or more Network 
+            -> internetworking Device
+            -> use ip address.
+            -> route se direct pc connect nhi hote wo hamesa switch se hi hote h.
+            -> on router each end, different network is compulsory otherwise route become confuse to send packet.
+            -> it has route table where it maintain Network id . (network id 10.20.0.0 -> k leye class C hence 10.0.0.0 hogi)
+        
+        In Docker there are 3 type of Network
+        -------------------------------------
+            1. Bridge 
+            2. Host 
+            3. Null
+            4. overlay
+
+            1. Bridge : 
+            -------------
+                -> it is a default network in docker 
+                -> it can help to connect multiple container between each other 
+                -> command: docker run ubuntu 
+                -> in docker default bridge called Docker0.
+
+            2. Host: 
+            --------
+                -> command : docker run ubuntu --network=host
+                -> it is basically used to access the container from the outside network
+                -> as name suggest host network means same network which is host having.
+
+            3. Null:
+            ---------
+                -> command : docker run ubuntu --network=none
+                -> it is used to make isolated container 
+            
+            4. overlay:
+            -----------
+                -> used to connect multiple docker engin/daemon
+
+Docker Volume:
+--------------
+
+    -> when we are not creating any directory then default location where data is stored *** /var/lib/docker/overlay2/hash-name/diff ****
+        and it will delete when we delete container.
+    ->  case 1: we have created one docker container and store some data in that container. in future if we want to delete
+        this container then our data will also loss. 
+        case 2: we want to share some data between different container 
+
+        to resolved both problem docker volume came into picture.
+
+    -> provide persistance data.
+    -> loosely coupled 
+    -> easy to share among different containers
+    -> volume is simple a directory inside our container.
+    -> first we have to declare the directory as a volume and then share it.
+    -> even if we stop container, still we can access container
+    -> volume will create in one container 
+    -> you can declare a directory as a volume only while the container creation
+    -> you cannot create a volume from exiting container
+    -> you can share one volume with across number of containers
+    -> volume will not be include when update an image (if you take image from container and after that you 
+        created a container from that image then there is no link between old container volume and this container volume)
+    
+    
+    -> you can create volume in two ways:
+    ---------------------------------------
+        1. container <-> container
+        2. Host      <-> Container
+
+        1. Container <-> Container
+        ---------------------------
+            Create an container with volume and share with another containers:
+            ------------------------------------------------------------------
+                Method 1 (from Docker file):
+                -----------------------------            
+                    1. -> create Dockerfile command: vi Dockerfile
+                    2. -> add the following command:
+                                FROM ubuntu
+                                VOLUME ["/myvolume"] 
+                    3. create image from docker file command: docker build -t myimg .
+                    4. now create a docker container from the above image 
+                        command: docker run -it --name myServerName myimg /bin/bash
+
+                    5. now create container 2 and share the volume of container 1 with container 2.
+                        command: docker run -it --name container2 --privileged=true --volumes-from container1 ubuntu /bin/bash
+                    6. now check this container having myvolume
+
+                Method 2 (from command): 
+                -------------------------
+                    1. create a container with volume 
+                        command: docker run -it --name container1 -v /volume2 ubuntu /bin/bash
+                    2. create some file in volume 
+                        command: cd /volume2 
+                                touch vol1 vol2 vol3 
+                    3. create container 2:
+                        command: docker run -it --name container2 --privileged=true --volumes-from container1 ubuntu /bin/bash
+                    4. now check here volume2 already present and files is also present here.
+
+
+        2. Container <-> Host :
+        -----------------------
+            command: 
+                    docker run -it --name container1 -v /home/ec2-user:/container1Volume(this will auto create and u can see all files of ec2 inside this directory) --privileged-true ubuntu /bin/bash
+
+
+    -> Volume can be categorized into 3 ways:
+    -----------------------------------------
+        1. anonymous volume
+        2. named volume
+        3. host volume
+
+
+        1. anonymous volume:
+        --------------------
+            -> such type of volume having a random hash as name 
+            -> whenever we run the following command:
+                => docker run -it --name container1 -v /directory_name ubuntu /bin/bash
+                then it will create one directory in the container named as "directory_name"
+                also at the same time it will create one more volume directory at the location 
+                /var/lib/docker/volume/random-hash/_data
+
+            -> in anonymous volume it is difficult to find that which hash directory is linked with which container 
+
+        2. Named Volume:
+        ----------------
+            -> here we are providing explicitly name to our volume
+            -> here is easy to find which volume is linked with which container
+            -> whenever we run the following command:
+                => docker run -it --name container1 -v my_volume_name/directory_name ubuntu /bin/bash
+                then it will create one directory in the container named as "directory_name"
+                also at the same time it will create one more volume directory at the location 
+                /var/lib/docker/volume/my_volume_name/_data
+
+        3. host Volume / bind volume:
+        -----------------------------
+            -> it is similar to named volume only difference is that here we are providing the directory path where we want to create out volume
+            -> whenever we run the following command:
+                => docker run -it --name container1 -v /opt/my_volume_name/directory_name ubuntu /bin/bash
+                then it will create one directory in the container named as "directory_name"
+                also at the same time it will create one more volume directory at the location 
+                /opt/my_volume_name
